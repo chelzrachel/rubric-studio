@@ -7,7 +7,7 @@
 <title>Rubric Studio | Lecturer Workspace</title>
 <meta name="description" content="Rubric-based marking for university lecturers.">
 <meta name="referrer" content="no-referrer">
-<link rel="icon" type="image/png" href="SFS LOGO 2021 (3).png"><link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ea6949'/%3E%3Cpath d='M20 34l8 8 16-18' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="SFS%20LOGO%202021%20(3).png">
 <style>
 
 :root{--navy:#14213a;--navy2:#1b2d4a;--orange:#f36a43;--orange-light:#fff0e9;--bg:#f4f6fa;--panel:#fff;--ink:#172239;--muted:#69768c;--line:#e6eaf1;--green:#1b986c;--greenbg:#eaf9f1;--shadow:0 7px 26px rgba(20,33,58,.055);--radius:16px}
@@ -893,12 +893,19 @@ function flowStepper(a,compact){
 function animateView(){const el=document.getElementById('app-content');if(!el)return;el.classList.remove('animate-in');void el.offsetWidth;el.classList.add('animate-in');clearTimeout(animateView.t);animateView.t=setTimeout(()=>el.classList.remove('animate-in'),1200)}
 function navigate(next){view=next;render();animateView();window.scrollTo({top:0,behavior:'instant'})}
 const navItems=[['dashboard','grid','Dashboard','Home'],['templates','book','Rubric Library','Rubrics'],['marking','clipboard','Marking Workspace','Marking'],['results','chart','Results & Reports','Results'],['backup','settings','Settings & Backup','Settings']];
+/** Uses the loaded logo as the browser-tab icon: drawn to a 64×64 image so every browser shows it (no caching or file-name issues). */
+function setFavicon(img){
+ let href=img.src;
+ try{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');const r=Math.min(64/img.naturalWidth,64/img.naturalHeight);const w=img.naturalWidth*r,h=img.naturalHeight*r;g.drawImage(img,(64-w)/2,(64-h)/2,w,h);href=c.toDataURL('image/png')}catch(e){}
+ document.querySelectorAll('link[rel~="icon"]').forEach(l=>l.remove());
+ const link=document.createElement('link');link.rel='icon';link.type='image/png';link.href=href;document.head.appendChild(link);
+}
 function renderBrand(){
  const mark=document.getElementById('brand-icon');if(!mark||mark.dataset.ready)return;mark.dataset.ready='1';
  const t=document.querySelector('.brand-title'),sub=document.querySelector('.brand-sub');if(t)t.textContent=BRAND.name;if(sub)sub.textContent=BRAND.tagline;
  if(!BRAND.logo){mark.innerHTML=icon('layers',22);return}
  const img=new Image();img.alt=BRAND.name+' logo';img.decoding='async';
- img.onload=()=>{mark.innerHTML='';mark.classList.add('has-logo');mark.appendChild(img);let fav=document.querySelector('link[rel~="icon"]')||document.head.appendChild(Object.assign(document.createElement('link'),{rel:'icon'}));fav.href=BRAND.logo};// the logo also becomes the browser-tab icon
+ img.onload=()=>{mark.innerHTML='';mark.classList.add('has-logo');mark.appendChild(img);setFavicon(img)};// the logo also becomes the browser-tab icon
  img.onerror=()=>{mark.innerHTML=icon('layers',22)};// falls back to the icon if the file is missing
  img.src=BRAND.logo;
 }
