@@ -502,6 +502,22 @@ h1,h2,h3,h4,strong,b{font-weight:600}
 .rf-step:last-child{border-color:#ffd2bf;background:#fff8f4}
 @media(max-width:820px){.rubric-file-steps{grid-template-columns:1fr}}
 
+/* v4.1: compact settings when grades are off */
+.settings-grid.no-grades{grid-template-columns:minmax(0,1fr);gap:16px}
+.prefs-card{padding:18px 22px}
+.prefs-head{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.prefs-head h3{margin:0 0 2px!important}.prefs-head p{margin:0!important;min-height:0!important}
+.prefs-row{display:grid;grid-template-columns:180px minmax(0,360px);gap:18px;align-items:start}
+.prefs-row .control.numeric{max-width:120px}
+.prefs-row .tiny-note{margin-top:2px}
+.settings-grid.no-grades .backup-block textarea{min-height:0}
+@media(max-width:620px){.prefs-row{grid-template-columns:1fr}}
+.settings-grid.no-grades>.backup-block:not(.prefs-card){display:grid;grid-template-columns:43px minmax(0,1fr);column-gap:13px;padding:18px 22px;align-items:center}
+.settings-grid.no-grades>.backup-block:not(.prefs-card)>.iconbox{grid-row:1/3}
+.settings-grid.no-grades>.backup-block:not(.prefs-card)>h3{margin:0 0 2px}
+.settings-grid.no-grades>.backup-block:not(.prefs-card)>p{margin:0;min-height:0}
+.settings-grid.no-grades>.backup-block:not(.prefs-card)>textarea{grid-column:1/-1;margin-top:14px}
+
 </style>
 </head>
 <body>
@@ -1028,13 +1044,13 @@ function renderResults(){let a=assess();if(!a)return `<div class="card empty"><h
 function renderSettings(){
  const s=state.settings,gs=s.gradeScale;
  return `<div class="notice" style="margin-bottom:22px">${icon('alert')}<span><strong>Important:</strong> Your rubrics and scores are saved only in this browser on this device — nothing is uploaded. Clearing browser data, a private window or another device will not have them, so download a backup regularly. Follow your institution's policy for storing student records, and download regular backups.</span></div>${cloudSheetUrl?`<div class="notice" style="margin-bottom:18px">${icon('storage')}<span><strong>Google Sheet:</strong> <a href="${html(cloudSheetUrl)}" target="_blank" rel="noopener" style="text-decoration:underline">Open your private data spreadsheet</a>. The <em>Marks Overview</em> tab lists every student's mark and grade and refreshes each time you save.</span></div>`:''}${cloudSharedWith?`<div class="notice warn" style="margin-bottom:18px">${icon('alert')}<span><strong>Privacy check:</strong> your data spreadsheet is shared with ${cloudSharedWith} other account${cloudSharedWith===1?'':'s'}. Student marks are visible to them. Remove access in Google Sheets (Share button) unless this is intended.</span></div>`:''}
- <div class="settings-grid">
+ <div class="settings-grid ${SHOW_GRADES?'':'no-grades'}">
  ${SHOW_GRADES?`<section class="card backup-block"><div class="iconbox">${icon('scale')}</div><h3>Grade scale</h3><p>Each student's final mark out of 100 receives a grade, grade point and status. Mark ranges run from each minimum up to the next band.</p>
   <table class="grade-table"><thead><tr><th>Mark</th><th>Min.</th><th>Grade</th><th>Point</th><th>Status</th><th></th></tr></thead><tbody>${gs.map((g,i)=>`<tr><td class="range-cell"><span class="grade-badge ${statusClass(g.status)}">${html(g.grade)}</span>${marks(g.min)}–${i===0?100:marks(gs[i-1].min-1)}</td><td><input class="control numeric" type="number" min="0" max="100" step="any" data-grade-row="${i}" data-gfield="min" value="${g.min}" aria-label="Minimum mark"></td><td><input class="control" maxlength="12" data-grade-row="${i}" data-gfield="grade" value="${html(g.grade)}" aria-label="Grade"></td><td><input class="control numeric" type="number" min="0" max="5" step="0.01" data-grade-row="${i}" data-gfield="point" value="${pointText(g)}" aria-label="Grade point"></td><td><input class="control" maxlength="20" data-grade-row="${i}" data-gfield="status" value="${html(g.status||'')}" aria-label="Status"></td><td><button class="btn ghost icon-only" data-action="remove-grade-row" data-index="${i}" title="Remove band" ${gs.length<=1?'disabled':''}>${icon('trash',15)}</button></td></tr>`).join('')}</tbody></table>
   ${gs.some(g=>Number(g.min)===0)?'':`<div class="notice warn" style="margin-top:10px">${icon('alert')}<span>Add a band with minimum 0 so every mark receives a grade.</span></div>`}
   <div class="stack-actions" style="margin-top:12px"><button class="btn small outline" data-action="add-grade-row">${icon('plus')} Add band</button><button class="btn small ghost" data-action="reset-grades">Reset to UTS scale</button></div>
-  <div class="field" style="margin-top:14px;max-width:220px"><label>Pass mark (for pass-rate statistics)</label><input class="control numeric" type="number" min="0" max="100" step="any" data-pass-mark value="${s.passMark}"></div></section>`:`<section class="card backup-block"><div class="iconbox">${icon('scale')}</div><h3>Pass mark</h3><p>Used for the pass-rate figure on the Results page.</p><div class="field" style="max-width:220px"><label>Pass mark (out of 100)</label><input class="control numeric" type="number" min="0" max="100" step="any" data-pass-mark value="${s.passMark}"></div></section>`}
- <section class="card backup-block"><div class="iconbox">${icon('message')}</div><h3>Comment bank</h3><p>Reusable feedback phrases. They appear as one-click chips under <em>Overall feedback</em> in the Marking Workspace. One comment per line.</p><textarea class="control" rows="11" data-comment-bank>${html((s.commentBank||[]).join('\n'))}</textarea><div class="field" style="margin-top:14px"><label>Default lecturer name (for new assessments${STUDENT_EMAIL?' and student e-mails':''})</label><input class="control" data-default-lecturer value="${html(state.lecturer||'')}" placeholder="Your name"></div></section>
+  <div class="field" style="margin-top:14px;max-width:220px"><label>Pass mark (for pass-rate statistics)</label><input class="control numeric" type="number" min="0" max="100" step="any" data-pass-mark value="${s.passMark}"></div></section>`:`<section class="card backup-block prefs-card"><div class="prefs-head"><div class="iconbox">${icon('settings')}</div><div><h3>Marking preferences</h3><p>Defaults used across your assessments.</p></div></div><div class="prefs-row"><div class="field"><label for="pref-pass">Pass mark <span class="muted">(out of 100)</span></label><input id="pref-pass" class="control numeric" type="number" min="0" max="100" step="any" data-pass-mark value="${s.passMark}"><span class="tiny-note">Used for the pass rate on Results.</span></div><div class="field"><label for="pref-lect">Default lecturer name</label><input id="pref-lect" class="control" data-default-lecturer value="${html(state.lecturer||'')}" placeholder="Your name"><span class="tiny-note">Filled in for new assessments.</span></div></div></section>`}
+ <section class="card backup-block"><div class="iconbox">${icon('message')}</div><h3>Comment bank</h3><p>Reusable feedback phrases. They appear as one-click chips under <em>Overall feedback</em> in the Marking Workspace. One comment per line.</p><textarea class="control" rows="11" data-comment-bank>${html((s.commentBank||[]).join('\n'))}</textarea>${SHOW_GRADES?`<div class="field" style="margin-top:14px"><label>Default lecturer name (for new assessments${STUDENT_EMAIL?' and student e-mails':''})</label><input class="control" data-default-lecturer value="${html(state.lecturer||'')}" placeholder="Your name"></div>`:''}</section>
  </div>
  <div class="section-heading"><div><h2>Backup & restore</h2><p>Keep a copy of your work, or move it to another account</p></div></div>
  <div class="backup-grid">
