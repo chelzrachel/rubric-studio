@@ -474,6 +474,17 @@ h1,h2,h3,h4,strong,b{font-weight:600}
 .crit-weight small{font-size:13.5px;font-weight:600;color:#4b5a72}
 @media (max-width:720px){.crit-weight-bar{width:120px}.criterion-index .index-bubble{width:36px;height:36px;flex-basis:36px;font-size:15px}}
 
+/* v3.8: keep member e-mails inside their cards */
+.member-card-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.member-mini-card{align-items:flex-start;overflow:hidden}
+.member-mini-card>div{min-width:0;flex:1}
+.member-mini-card strong{overflow-wrap:anywhere}
+.member-mini-card .member-email{display:flex!important;align-items:center;gap:4px;min-width:0;max-width:100%;margin-top:3px!important;color:#6b7a90}
+.member-mini-card .member-email svg{flex:none;opacity:.7}
+.member-mini-card .member-email>span{display:block!important;margin:0!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.member-mini-card .member-email{align-items:flex-start}.member-mini-card .member-email svg{margin-top:3px}
+.member-mini-card .member-email>span{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.4}
+
 </style>
 </head>
 <body>
@@ -959,7 +970,7 @@ function renderMarking(){let a=assess();if(!a)return `<div class="card empty"><d
 function renderGroupRoster(a,p){
  let members=groupMembers(p),r=calculate(a,p.id);
  return `<section class="card group-roster roster-modern"><div class="group-roster-top"><div><div class="eyebrow">TEAM ROSTER</div><h3>${html(p.name)} <span class="pill">${members.length} member${members.length===1?'':'s'}</span></h3><p>${html(p.studentId||'No group code')} · Shared group mark, adjusted by each member's contribution %</p></div><button class="btn small outline" data-action="edit-group" data-id="${p.id}">${icon('edit')} Edit group & members</button></div>
- ${members.length?`<div class="member-card-grid">${members.map((m,i)=>{let c=validContribution(m.contribution),ind=Math.min(100,r.percent*c/100);return `<div class="member-mini-card"><span class="member-avatar">${html(m.name.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||String(i+1))}</span><div><strong>${html(m.name)}</strong><span>${html(m.studentId||'ID not provided')}${m.email?` · ${html(m.email)}`:''}</span>${c!==100?`<span class="contrib-tag">${marks(c)}% contribution → ${marks(ind)}/100</span>`:''}</div></div>`}).join('')}</div>`:`<div class="roster-placeholder">${icon('users',22)}<div><strong>No members added yet</strong><p>Use “Edit group & members”, or <button class="link-action" data-action="import-roster">import your class list</button>.</p></div></div>`}</section>`;
+ ${members.length?`<div class="member-card-grid">${members.map((m,i)=>{let c=validContribution(m.contribution),ind=Math.min(100,r.percent*c/100);return `<div class="member-mini-card"><span class="member-avatar">${html(m.name.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||String(i+1))}</span><div><strong>${html(m.name)}</strong><span>${html(m.studentId||'ID not provided')}</span>${m.email?`<span class="member-email" title="${html(m.email)}">${icon('mail',11)}<span>${html(m.email).replace('@','<wbr>@')}</span></span>`:''}${c!==100?`<span class="contrib-tag">${marks(c)}% contribution → ${marks(ind)}/100</span>`:''}</div></div>`}).join('')}</div>`:`<div class="roster-placeholder">${icon('users',22)}<div><strong>No members added yet</strong><p>Use “Edit group & members”, or <button class="link-action" data-action="import-roster">import your class list</button>.</p></div></div>`}</section>`;
 }
 function renderGradingPanel(a,p){let g=grade(a,p.id),v=calculate(a,p.id),index=a.participants.findIndex(x=>x.id===p.id),rubric=a.rubric,lock=a.locked?'disabled':'';
  const bank=state.settings.commentBank||[];
